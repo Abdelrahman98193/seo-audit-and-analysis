@@ -1,0 +1,4 @@
+advertools==0.10.6
+pandas==1.3.3
+pyarrow==5.0.0
+streamlit==1.3.0
