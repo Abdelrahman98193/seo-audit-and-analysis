@@ -1,25 +1,30 @@
 import streamlit as st
-from advertools import sitemap_ping
-import xml.etree.ElementTree as ET
+import pandas as pd
+import pyarrow.parquet as pq
 
-def create_sitemap_xml(urls):
-    root = ET.Element("urlset")
-    root.set('xmlns', 'http://www.sitemaps.org/schemas/sitemap/0.9')
+import re
+import advertools as adv
 
-    for url in urls:
-        url_elem = ET.SubElement(root, "url")
-        loc = ET.SubElement(url_elem, "loc")
-        loc.text = url
+# UI
+st.title("SEO analysis with Streamlit")
 
-    tree = ET.ElementTree(root)
-    tree.write("sitemap.xml")
+# Your existing functions go here...
 
-    st.success("Sitemap generated successfully!")
+if __name__ == '__main__':
+    st.sidebar.title('SEO Analysis App')
+    st.sidebar.write('You can analyze SEO data with this app.')
 
-st.title('Sitemap Generator')
+    uploaded_file = st.file_uploader("Upload your data file (.jl)", type='jl')
+    if uploaded_file is not None:
+        st.write('File uploaded successfully!')
+        columns = st.text_input('Enter columns to analyze (separate by comma)', 'url, status, redirect_urls, redirect_reasons')
 
-urls_input = st.text_area('Enter the URLs (separate by line)', height=200)
+        # Process the uploaded file
+        try:
+            crawldf = pd.read_json(uploaded_file, lines=True)
+            final_df = redirect_summary(crawldf)
+            st.write(final_df)
+        except Exception as e:
+            st.write('Error processing the file. Please check the data format.')
 
-if st.button('Generate Sitemap'):
-    urls_list = urls_input.split('\n')
-    create_sitemap_xml(urls_list)
+        # Add more functionality like calling other analysis functions here
