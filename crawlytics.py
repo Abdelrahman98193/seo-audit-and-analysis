@@ -1,30 +1,41 @@
 import streamlit as st
 import pandas as pd
+import requests
+from bs4 import BeautifulSoup
 
-# Define a sample function redirect_summary
-def redirect_summary(df):
-    # This is a sample function, please replace with your actual implementation
-    return df[['url', 'status', 'redirect_urls', 'redirect_reasons']]
+st.title("SEO Analysis of URLs in CSV")
 
-# UI
-st.title("SEO analysis with Streamlit")
-
-if __name__ == '__main__':
-    st.sidebar.title('SEO Analysis App')
-    st.sidebar.write('You can analyze SEO data with this app.')
-
-    uploaded_file = st.file_uploader("Upload your data file (.csv)", type='csv')
-    if uploaded_file:
-        st.write('File uploaded successfully!')
-        columns_input = st.text_input('Enter columns to analyze (separate by comma)',
-                                      'url, status, redirect_urls, redirect_reasons')
-
-        columns = [col.strip() for col in columns_input.split(',')]
-
-        # Process the uploaded file
+def analyze_csv(file):
+    df = pd.read_csv(file)
+    
+    if 'url' not in df.columns:
+        st.error("CSV file must contain a column named 'url'")
+        return
+    
+    st.success("CSV file loaded successfully!")
+    
+    # SEO Analysis for each URL in the CSV
+    for url in df['url']:
+        st.markdown(f"## SEO Analysis for URL: {url}")
+        
         try:
-            crawldf = pd.read_csv(uploaded_file)
-            final_df = redirect_summary(crawldf)[columns]
-            st.write(final_df)
-        except Exception as e:
-            st.write('Error processing the file. Please check the data format.')
+            response = requests.get(url)
+            if response.status_code == 200:
+                soup = BeautifulSoup(response.content, 'html.parser')
+                
+                # Perform SEO analysis here using BeautifulSoup
+                # You can extract meta tags, title, headings, links, etc.
+                
+                st.write("SEO analysis results:")
+                # Display SEO analysis results for the URL
+                
+            else:
+                st.error(f"Failed to fetch URL: {url}. Status Code: {response.status_code}")
+        except requests.RequestException as e:
+            st.error(f"An error occurred while fetching URL: {url}. Error: {e}")
+            
+st.write("Upload a CSV file containing a column 'url' for SEO analysis:")
+file = st.file_uploader("Upload CSV", type=['csv'])
+
+if file is not None:
+    analyze_csv(file)
