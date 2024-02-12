@@ -14,6 +14,9 @@ def analyze_csv(file):
     
     st.success("CSV file loaded successfully!")
     
+    # Create a list to store SEO analysis results
+    seo_results = []
+    
     # SEO Analysis for each URL in the CSV
     for url in df['url']:
         st.markdown(f"## SEO Analysis for URL: {url}")
@@ -26,14 +29,31 @@ def analyze_csv(file):
                 # Perform SEO analysis here using BeautifulSoup
                 # You can extract meta tags, title, headings, links, etc.
                 
-                st.write("SEO analysis results:")
-                # Display SEO analysis results for the URL
+                # Sample SEO analysis result for demonstration
+                seo_data = {
+                    'URL': url,
+                    'Title': 'Sample Title',
+                    'Meta Description': 'Sample Meta Description',
+                    'Headings': 'Sample Headings',
+                    'Links': 'Sample Links'
+                }
+                
+                # Add the SEO analysis results to the list
+                seo_results.append(seo_data)
+                
+                # Display SEO analysis results in table format
+                st.table(pd.DataFrame([seo_data]))
                 
             else:
                 st.error(f"Failed to fetch URL: {url}. Status Code: {response.status_code}")
         except requests.RequestException as e:
             st.error(f"An error occurred while fetching URL: {url}. Error: {e}")
-            
+    
+    # Display all SEO analysis results in a table at the end
+    if seo_results:
+        st.write("## All SEO Analysis Results")
+        st.table(pd.DataFrame(seo_results))
+
 st.write("Upload a CSV file containing a column 'url' for SEO analysis:")
 file = st.file_uploader("Upload CSV", type=['csv'])
 
